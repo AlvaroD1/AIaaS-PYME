@@ -72,4 +72,3 @@ La aplicacion corre por defecto en `http://localhost:5173`.
 ## Documentacion adicional
 
 - [docs/backlog.csv](docs/backlog.csv): backlog completo con estado y evidencia por requisito
-- [design-system/aiaas-pyme/MASTER.md](design-system/aiaas-pyme/MASTER.md): sistema de diseno del producto
