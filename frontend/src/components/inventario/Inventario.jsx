@@ -48,7 +48,7 @@ export function Inventario() {
       </div>
 
       {state.inventario.length === 0 ? (
-        <div className="bg-white rounded-2xl p-16 text-center shadow-md">
+        <div className="bg-white rounded-sm p-16 text-center border border-border">
           <Package size={48} className="text-gray-300 mx-auto mb-4" />
           <h3 className="font-heading font-semibold text-gray-500 mb-2">Sin productos aún</h3>
           <p className="text-gray-400 text-sm mb-6">
@@ -59,7 +59,7 @@ export function Inventario() {
           </Button>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl shadow-md overflow-hidden">
+        <div className="bg-white rounded-sm border border-border overflow-hidden">
           <table className="w-full text-left">
             <thead className="bg-muted border-b border-border">
               <tr>

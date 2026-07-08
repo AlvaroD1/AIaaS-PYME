@@ -4,16 +4,16 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: "#1E40AF",
-        "primary-dark": "#1E3A8A",
-        secondary: "#3B82F6",
+        primary: "#0F766E",
+        "primary-dark": "#0F172A",
+        secondary: "#14B8A6",
         accent: "#D97706",
-        muted: "#E9EEF6",
-        border: "#DBEAFE",
+        muted: "#F1F5F9",
+        border: "#E2E8F0",
         destructive: "#DC2626",
         sidebar: "#0F172A",
-        "sidebar-active": "#1E3A8A",
-        "app-bg": "#F8FAFC",
+        "sidebar-active": "#0F766E",
+        "app-bg": "#FAFAFA",
         "onboard-bg": "#020617",
         "onboard-green": "#22C55E",
       },

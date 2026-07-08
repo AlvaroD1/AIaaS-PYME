@@ -1,0 +1,9 @@
+ID,Tipo,Descripcion,Beneficio/Prioridad,Estado,Evidencia
+RU02,RU,"Que el agente responda las preguntas frecuentes de mis clientes de forma automática","No responder manualmente las mismas preguntas decenas de veces al día",Hecho,"MiNegocio.jsx (FAQ builder) -> Simulador.jsx envía agente.faq -> server.js inyecta el FAQ en el prompt de Gemini con regla de uso obligatoria"
+RU04,RU,"Que el sistema me alerte cuando el inventario de algún producto esté por agotarse","Hacer pedidos a proveedores a tiempo y evitar quiebres de stock",Hecho,"AlertasPanel.jsx + umbralStock en NegocioContext.jsx"
+RU09,RU,"Quiero personalizar el nombre, tono y saludo del agente con la identidad de mi marca","Que los clientes sientan que interactúan con mi negocio y no con un robot genérico",Hecho,"MiNegocio.jsx -> SET_AGENTE en NegocioContext.jsx; incluye selector de avatar"
+RU10,RU,"Quiero integrar mi catálogo de productos al agente para que responda con precios y disponibilidad","Que los clientes reciban información precisa sin que yo intervenga",Hecho,"Inventario.jsx (CRUD) inyectado como JSON en el prompt del backend (server.js)"
+RF01,RF,"Registro de PYME con datos básicos en un flujo de máximo 5 pasos",Alta,Hecho,"OnboardingWizard.jsx: 3 pasos (identidad, tipo, configuración inicial)"
+RF13,RF,"Personalización del agente: nombre, avatar, tono de voz y saludo desde panel sin código",Media,Hecho,"MiNegocio.jsx: campos nombre/tono/saludo + selector de avatar (constants/avatares.js)"
+RF17,RF,"Módulo de preguntas frecuentes (FAQ) que el agente usa como base de conocimiento",Alta,Hecho,"MiNegocio.jsx (builder) + server.js (FAQ incluido en systemInstruction de Gemini)"
+RF20,RF,"Onboarding guiado paso a paso para activar el primer agente en menos de 30 minutos",Alta,Hecho,"OnboardingWizard.jsx, StepIdentidad.jsx, StepTipoNegocio.jsx, StepConfigInicial.jsx"

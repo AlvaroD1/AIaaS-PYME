@@ -21,7 +21,7 @@ export function Agenda() {
       </div>
 
       {state.agenda.length === 0 ? (
-        <div className="bg-white rounded-2xl p-16 text-center shadow-md">
+        <div className="bg-white rounded-sm p-16 text-center border border-border">
           <CalendarDays size={48} className="text-gray-300 mx-auto mb-4" />
           <h3 className="font-heading font-semibold text-gray-500 mb-2">Sin citas agendadas</h3>
           <p className="text-gray-400 text-sm mb-6">Agrega citas para que el agente pueda gestionar disponibilidad.</p>
@@ -30,7 +30,7 @@ export function Agenda() {
       ) : (
         <div className="space-y-3">
           {state.agenda.map(cita => (
-            <div key={cita.id} className="bg-white rounded-xl px-5 py-4 shadow-sm border border-border flex items-center justify-between">
+            <div key={cita.id} className="bg-white rounded-sm px-5 py-4 border border-border flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
                   <CalendarDays size={18} className="text-primary" />

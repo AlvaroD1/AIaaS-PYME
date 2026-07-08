@@ -21,7 +21,7 @@ export function Horario() {
         <p className="text-gray-500 text-sm mt-1">El agente usará este horario para gestionar consultas fuera de hora.</p>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-md divide-y divide-border">
+      <div className="bg-white rounded-sm border border-border divide-y divide-border">
         {DIAS.map(dia => (
           <div key={dia} className="flex items-center gap-4 px-6 py-4">
             <button

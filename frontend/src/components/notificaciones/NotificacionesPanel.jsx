@@ -30,7 +30,7 @@ export function NotificacionesPanel() {
       </div>
 
       {notificaciones.length === 0 ? (
-        <div className="bg-white rounded-2xl p-16 text-center shadow-md">
+        <div className="bg-white rounded-sm p-16 text-center border border-border">
           <BellOff size={48} className="text-gray-300 mx-auto mb-4" />
           <h3 className="font-heading font-semibold text-gray-500 mb-2">Sin notificaciones</h3>
           <p className="text-gray-400 text-sm">Aquí aparecerán alertas de stock, citas y errores del agente.</p>
@@ -38,7 +38,7 @@ export function NotificacionesPanel() {
       ) : (
         <div className="space-y-2">
           {notificaciones.map(n => (
-            <div key={n.id} className={`bg-white rounded-xl px-5 py-4 shadow-sm border flex items-start gap-4 transition-all ${n.leida ? "opacity-60 border-border" : "border-secondary"}`}>
+            <div key={n.id} className={`bg-white rounded-sm px-5 py-4 border flex items-start gap-4 transition-all ${n.leida ? "opacity-60 border-border" : "border-secondary"}`}>
               <Badge variant={tipoVariant(n.tipo)} className="mt-0.5 flex-shrink-0">{n.tipo}</Badge>
               <div className="flex-1">
                 <p className="text-sm font-medium text-primary-dark">{n.mensaje}</p>

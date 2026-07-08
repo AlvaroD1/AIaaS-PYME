@@ -17,12 +17,12 @@ export function Modal({ isOpen, onClose, title, children, maxWidth = "max-w-lg" 
       onClick={onClose}
     >
       <div
-        className={`bg-white rounded-2xl shadow-xl w-full ${maxWidth} max-h-[90vh] overflow-y-auto`}
+        className={`bg-white rounded-sm shadow-xl w-full ${maxWidth} max-h-[90vh] overflow-y-auto`}
         onClick={e => e.stopPropagation()}
       >
         <div className="flex items-center justify-between px-6 py-4 border-b border-border">
           <h3 className="font-heading font-semibold text-primary-dark text-lg">{title}</h3>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-muted cursor-pointer transition-colors">
+          <button onClick={onClose} className="p-1.5 rounded-sm hover:bg-muted cursor-pointer transition-colors">
             <X size={18} className="text-gray-500" />
           </button>
         </div>

@@ -42,6 +42,7 @@ export function Simulador() {
           inventario,
           agenda,
           fueraDeHorario: !enHorario,
+          faq: agente.faq || [],
         }),
       });
       const data = await res.json();
@@ -57,11 +58,16 @@ export function Simulador() {
     <div className="flex flex-col items-center">
       {/* Header */}
       <div className="w-full max-w-md mb-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          {enHorario
-            ? <><Wifi size={16} className="text-green-600" /><span className="text-xs text-green-600 font-medium">En horario</span></>
-            : <><WifiOff size={16} className="text-gray-400" /><span className="text-xs text-gray-400">Fuera de horario</span></>
-          }
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            {enHorario
+              ? <><Wifi size={16} className="text-green-600" /><span className="text-xs text-green-600 font-medium">En horario</span></>
+              : <><WifiOff size={16} className="text-gray-400" /><span className="text-xs text-gray-400">Fuera de horario</span></>
+            }
+          </div>
+          <span className="text-xs text-gray-400 border-l border-border pl-3">
+            {historial.filter(m => m.remitente === "user").length} mensajes en esta sesión
+          </span>
         </div>
         <Button size="sm" variant="secondary" onClick={() => setConnectModal(true)}>
           <Link size={14} /> Conectar WhatsApp
@@ -72,8 +78,8 @@ export function Simulador() {
       <div className="w-full max-w-md h-[600px] flex flex-col bg-[#efeae2] rounded-2xl overflow-hidden shadow-xl">
         {/* WA Header */}
         <div className="bg-[#075e54] text-white px-4 py-3 flex items-center gap-3">
-          <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
-            <span className="text-[#075e54] font-bold text-sm">{(agente.nombre || "A")[0]}</span>
+          <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-lg">
+            {agente.avatar || (agente.nombre || "A")[0]}
           </div>
           <div>
             <p className="font-semibold text-sm">{agente.nombre}</p>

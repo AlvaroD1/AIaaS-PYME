@@ -11,7 +11,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 app.post("/api/chat", async (req, res) => {
   // Recibimos todo el contexto del negocio desde la interfaz
-  const { mensaje, configuracion, inventario, agenda, fueraDeHorario } =
+  const { mensaje, configuracion, inventario, agenda, fueraDeHorario, faq } =
     req.body;
 
   try {
@@ -26,12 +26,14 @@ app.post("/api/chat", async (req, res) => {
             DATOS OPERATIVOS:
             - Inventario/Menú actual: ${JSON.stringify(inventario)}
             - Agenda de citas ocupadas: ${JSON.stringify(agenda)}
+            - Preguntas frecuentes configuradas por el dueño (úsalas como fuente de verdad antes de improvisar): ${JSON.stringify(faq || [])}
 
             REGLAS ESTRICTAS DE COMPORTAMIENTO:
             1. REGLA DE HORARIO (CRÍTICA): Si el estado es 'FUERA DEL HORARIO LABORAL' y el cliente intenta hacer un pedido o reservar, DEBES detener la conversación y responder EXACTAMENTE con esta frase adaptada: "Estás a punto de realizar un pedido fuera de nuestras horas de trabajo. Tu solicitud será atendida en orden de llegada al día siguiente. Tu número de turno es el #${Math.floor(Math.random() * 100) + 10}. ¿Deseas continuar con tu pedido?".
             2. REGLA DE COMIDA: Si el tipo de negocio incluye 'comida' y el cliente pide más de 20 platos/unidades, advierte amablemente que los pedidos grandes requieren validación manual del local por temas de preparación.
             3. REGLA DE SERVICIOS: Si ofrecen servicios (ej. barbería, salón), pide al cliente la fecha y hora que desea, revisa la "Agenda de citas ocupadas" y si la hora choca, ofrécele una hora distinta.
             4. REGLA DE INVENTARIO: Solo puedes vender lo que haya en stock. Si piden algo que no hay, ofrece alternativas.
+            5. REGLA DE FAQ: Si la pregunta del cliente coincide con una de las "Preguntas frecuentes configuradas", responde usando esa respuesta exacta como base.
         `;
 
     const model = genAI.getGenerativeModel({

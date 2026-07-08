@@ -7,7 +7,7 @@ export function AlertasPanel() {
 
   if (alertas.length === 0) {
     return (
-      <div className="bg-white rounded-2xl p-6 shadow-md">
+      <div className="bg-white rounded-sm p-6 border border-border">
         <h3 className="font-heading font-semibold text-primary-dark mb-3 flex items-center gap-2">
           <AlertTriangle size={18} className="text-accent" /> Alertas de Stock
         </h3>
@@ -17,7 +17,7 @@ export function AlertasPanel() {
   }
 
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-md border border-red-100">
+    <div className="bg-white rounded-sm p-6 border border-red-100">
       <h3 className="font-heading font-semibold text-destructive mb-3 flex items-center gap-2">
         <AlertTriangle size={18} /> Alertas de Stock Bajo
       </h3>

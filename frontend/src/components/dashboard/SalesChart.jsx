@@ -12,18 +12,18 @@ const mockData = [
 
 export function SalesChart() {
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-md">
+    <div className="bg-white rounded-sm p-6 border border-border">
       <h3 className="font-heading font-semibold text-primary-dark mb-4">Ventas ultimos 7 dias</h3>
       <ResponsiveContainer width="100%" height={200}>
         <BarChart data={mockData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#DBEAFE" />
+          <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
           <XAxis dataKey="dia" tick={{ fontSize: 12, fill: "#64748b" }} axisLine={false} tickLine={false} />
           <YAxis tick={{ fontSize: 12, fill: "#64748b" }} axisLine={false} tickLine={false} />
           <Tooltip
-            contentStyle={{ borderRadius: "8px", border: "1px solid #DBEAFE", fontSize: "13px" }}
+            contentStyle={{ borderRadius: "4px", border: "1px solid #E2E8F0", fontSize: "13px" }}
             formatter={(v) => [`$${v}`, "Ventas"]}
           />
-          <Bar dataKey="ventas" fill="#1E40AF" radius={[4, 4, 0, 0]} />
+          <Bar dataKey="ventas" fill="#0F766E" radius={[2, 2, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>

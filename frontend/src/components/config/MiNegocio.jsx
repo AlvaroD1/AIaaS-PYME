@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Save, Plus, Trash2 } from "lucide-react";
+import { AVATARES_AGENTE } from "../../constants/avatares";
 import { useNegocio } from "../../hooks/useNegocio";
 import { Input, Select } from "../ui/Input";
 import { Button } from "../ui/Button";
@@ -41,7 +42,7 @@ export function MiNegocio() {
       </div>
 
       {/* Datos del negocio */}
-      <div className="bg-white rounded-2xl shadow-md p-6 mb-6">
+      <div className="bg-white rounded-sm border border-border p-6 mb-6">
         <h2 className="font-heading font-semibold text-primary-dark mb-4">Datos del negocio</h2>
         <Input
           label="Nombre del negocio"
@@ -64,7 +65,7 @@ export function MiNegocio() {
       </div>
 
       {/* Config del agente */}
-      <div className="bg-white rounded-2xl shadow-md p-6 mb-6">
+      <div className="bg-white rounded-sm border border-border p-6 mb-6">
         <h2 className="font-heading font-semibold text-primary-dark mb-4">Configuración del agente</h2>
         <Input
           label="Nombre del agente"
@@ -87,10 +88,27 @@ export function MiNegocio() {
           onChange={e => setAgente(a => ({ ...a, saludo: e.target.value }))}
           placeholder="¡Hola! ¿En qué te ayudo hoy?"
         />
+        <div className="mt-3">
+          <p className="text-sm font-medium text-primary-dark mb-2">Avatar del agente</p>
+          <div className="flex gap-2 flex-wrap">
+            {AVATARES_AGENTE.map(emoji => (
+              <button
+                key={emoji}
+                type="button"
+                onClick={() => setAgente(a => ({ ...a, avatar: emoji }))}
+                className={`w-10 h-10 rounded-full flex items-center justify-center text-lg cursor-pointer transition-all ${
+                  agente.avatar === emoji ? "bg-primary/10 ring-2 ring-primary" : "bg-muted hover:bg-primary/5"
+                }`}
+              >
+                {emoji}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* FAQ Builder */}
-      <div className="bg-white rounded-2xl shadow-md p-6">
+      <div className="bg-white rounded-sm border border-border p-6">
         <h2 className="font-heading font-semibold text-primary-dark mb-1">Preguntas frecuentes (FAQ)</h2>
         <p className="text-xs text-gray-400 mb-4">El agente usará estas respuestas para atender a tus clientes.</p>
 
