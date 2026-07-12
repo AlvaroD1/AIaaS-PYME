@@ -1,12 +1,14 @@
 // src/components/onboarding/StepTipoNegocio.jsx
-import { Package, Wrench, UtensilsCrossed, LayoutGrid } from "lucide-react";
+import { Package, Wrench, UtensilsCrossed, LayoutGrid, Heart, GraduationCap } from "lucide-react";
 import { Button } from "../ui/Button";
 
 const TIPOS = [
-  { value: "productos",   icon: Package,          label: "Productos",   desc: "Tienda, farmacia, moda" },
-  { value: "servicios",   icon: Wrench,           label: "Servicios",   desc: "Barbería, limpieza, academia" },
-  { value: "restaurante", icon: UtensilsCrossed,  label: "Restaurante", desc: "Comida y bebidas" },
-  { value: "mixto",       icon: LayoutGrid,       label: "Mixto",       desc: "Productos y servicios" },
+  { value: "productos",   icon: Package,          label: "Productos",          desc: "Tienda, farmacia, moda" },
+  { value: "servicios",   icon: Wrench,           label: "Servicios",          desc: "Barbería, limpieza, taller" },
+  { value: "restaurante", icon: UtensilsCrossed,  label: "Restaurante",        desc: "Comida y bebidas" },
+  { value: "salud",       icon: Heart,            label: "Salud / Consultorio", desc: "Clínica, dentista, veterinaria" },
+  { value: "academia",    icon: GraduationCap,    label: "Academia / Educación", desc: "Cursos, talleres, clases" },
+  { value: "mixto",       icon: LayoutGrid,       label: "Mixto",              desc: "Productos y servicios" },
 ];
 
 export function StepTipoNegocio({ tipoSeleccionado, onChange, onNext, onBack }) {

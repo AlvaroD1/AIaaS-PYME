@@ -7,12 +7,29 @@ const DIAS_LABEL = {
   viernes: "Vie", sabado: "Sáb", domingo: "Dom",
 };
 
-export function StepConfigInicial({ tipo, horario, onHorarioChange, primerProducto, onProductoChange, onFinish, onBack }) {
-  const tieneServicios  = ["servicios", "mixto"].includes(tipo);
-  const tieneInventario = ["productos", "restaurante", "mixto"].includes(tipo);
+export function StepConfigInicial({ tipo, subTipoSalud, onSubTipoChange, horario, onHorarioChange, primerProducto, onProductoChange, onFinish, onBack }) {
+  const tieneServicios  = ["servicios", "mixto", "salud", "academia"].includes(tipo);
+  const tieneInventario = ["productos", "restaurante", "mixto", "academia"].includes(tipo) || (tipo === "salud" && subTipoSalud === "veterinaria");
 
   return (
     <div className="space-y-6">
+      {tipo === "salud" && (
+        <div>
+          <p className="text-sm font-semibold text-slate-300 mb-3">¿Qué tipo de centro es?</p>
+          <div className="flex bg-white/10 p-1 rounded-lg">
+            {["medico", "dentista", "veterinaria"].map(st => (
+              <button
+                key={st}
+                onClick={() => onSubTipoChange(st)}
+                className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-all ${subTipoSalud === st ? "bg-onboard-green text-white shadow-sm" : "text-slate-400 hover:text-white"}`}
+              >
+                {st === "medico" ? "Médico" : st === "dentista" ? "Dental" : "Veterinaria"}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {tieneServicios && (
         <div>
           <p className="text-sm font-semibold text-slate-300 mb-3">Días y horario de atención</p>

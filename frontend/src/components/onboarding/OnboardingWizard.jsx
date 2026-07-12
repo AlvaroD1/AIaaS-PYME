@@ -13,6 +13,7 @@ export function OnboardingWizard() {
   const [paso, setPaso] = useState(0);
   const [datos, setDatos] = useState({ nombre: "", ciudad: "quito", sector: "tienda" });
   const [tipo, setTipo] = useState("productos");
+  const [subTipoSalud, setSubTipoSalud] = useState("medico");
   const [horario, setHorario] = useState(state.horario);
   const [primerProducto, setPrimerProducto] = useState({ nombre: "", precio: "", stock: "" });
 
@@ -33,7 +34,7 @@ export function OnboardingWizard() {
       });
     }
     dispatch({ type: "SET_HORARIO", payload: horario });
-    completarOnboarding({ ...datos, tipoNegocio: tipo });
+    completarOnboarding({ ...datos, tipoNegocio: tipo, subTipoSalud });
   }
 
   return (
@@ -94,6 +95,8 @@ export function OnboardingWizard() {
           {paso === 2 && (
             <StepConfigInicial
               tipo={tipo}
+              subTipoSalud={subTipoSalud}
+              onSubTipoChange={setSubTipoSalud}
               horario={horario}
               onHorarioChange={handleHorarioChange}
               primerProducto={primerProducto}

@@ -9,7 +9,7 @@ function tipoVariant(tipo) {
 }
 
 export function NotificacionesPanel() {
-  const { state, marcarLeida, dispatch } = useNegocio();
+  const { state, marcarLeida, marcarTodasLeidas, dispatch } = useNegocio();
   const { notificaciones } = state;
   const noLeidas = notificaciones.filter(n => !n.leida).length;
 
@@ -23,8 +23,8 @@ export function NotificacionesPanel() {
           {noLeidas > 0 && <p className="text-gray-500 text-sm mt-1">{noLeidas} sin leer</p>}
         </div>
         {notificaciones.length > 0 && (
-          <Button variant="ghost" size="sm" onClick={() => dispatch({ type: "LIMPIAR_NOTIFICACIONES" })}>
-            <Trash2 size={14} /> Limpiar todas
+          <Button variant="ghost" size="sm" onClick={() => marcarTodasLeidas()}>
+            <Check size={14} /> Marcar todas leídas
           </Button>
         )}
       </div>

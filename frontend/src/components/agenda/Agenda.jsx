@@ -7,8 +7,18 @@ import { CitaModal } from "./CitaModal";
 
 export function Agenda() {
   const { state, agregarCita, eliminarCita } = useNegocio();
+  const { tipoNegocio, subTipoSalud } = state.negocio;
   const [modalOpen, setModalOpen] = useState(false);
   const [confirmId, setConfirmId] = useState(null);
+
+  let emptyText = "Agrega citas para que el agente pueda gestionar disponibilidad.";
+  if (tipoNegocio === "salud") {
+    emptyText = subTipoSalud === "veterinaria" 
+      ? "Agrega consultas o servicios para mascotas."
+      : "Agrega las consultas médicas programadas.";
+  } else if (tipoNegocio === "academia") {
+    emptyText = "Agrega inscripciones a cursos o talleres.";
+  }
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -24,7 +34,7 @@ export function Agenda() {
         <div className="bg-white rounded-2xl p-16 text-center shadow-md">
           <CalendarDays size={48} className="text-gray-300 mx-auto mb-4" />
           <h3 className="font-heading font-semibold text-gray-500 mb-2">Sin citas agendadas</h3>
-          <p className="text-gray-400 text-sm mb-6">Agrega citas para que el agente pueda gestionar disponibilidad.</p>
+          <p className="text-gray-400 text-sm mb-6">{emptyText}</p>
           <Button onClick={() => setModalOpen(true)}><Plus size={16} /> Agendar primera cita</Button>
         </div>
       ) : (
@@ -36,7 +46,7 @@ export function Agenda() {
                   <CalendarDays size={18} className="text-primary" />
                 </div>
                 <div>
-                  <p className="font-semibold text-primary-dark text-sm">{cita.cliente}</p>
+                  <p className="font-semibold text-primary-dark text-sm">{cita.cliente_nombre || cita.cliente}</p>
                   <p className="text-xs text-gray-400">{cita.servicio} · {cita.fecha} {cita.hora}</p>
                 </div>
               </div>

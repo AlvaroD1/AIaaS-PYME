@@ -1,21 +1,47 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { useNegocio } from "../../hooks/useNegocio";
 
-const mockData = [
-  { dia: "Lun", ventas: 120 },
-  { dia: "Mar", ventas: 85 },
-  { dia: "Mie", ventas: 200 },
-  { dia: "Jue", ventas: 160 },
-  { dia: "Vie", ventas: 240 },
-  { dia: "Sab", ventas: 310 },
-  { dia: "Dom", ventas: 90 },
-];
+const DIAS_LABEL = ["Dom", "Lun", "Mar", "Mie", "Jue", "Vie", "Sab"];
 
 export function SalesChart() {
+  const { state } = useNegocio();
+  const pedidos = state.pedidos || [];
+
+  // Agrupar ventas de los últimos 7 días
+  const ahora = new Date();
+  const dataPorDia = [];
+
+  for (let i = 6; i >= 0; i--) {
+    const fecha = new Date(ahora);
+    fecha.setDate(ahora.getDate() - i);
+    fecha.setHours(0, 0, 0, 0);
+
+    const finDia = new Date(fecha);
+    finDia.setHours(23, 59, 59, 999);
+
+    const ventasDia = pedidos
+      .filter(p => {
+        const fp = new Date(p.fecha);
+        return fp >= fecha && fp <= finDia;
+      })
+      .reduce((sum, p) => sum + (p.total || 0), 0);
+
+    dataPorDia.push({
+      dia: DIAS_LABEL[fecha.getDay()],
+      ventas: Math.round(ventasDia * 100) / 100,
+    });
+  }
+
+  const tieneData = dataPorDia.some(d => d.ventas > 0);
+
   return (
     <div className="bg-white rounded-2xl p-6 shadow-md">
-      <h3 className="font-heading font-semibold text-primary-dark mb-4">Ventas ultimos 7 dias</h3>
+      <h3 className="font-heading font-semibold text-primary-dark mb-4">Ventas últimos 7 días</h3>
+      {!tieneData && (
+        <p className="text-xs text-gray-400 mb-2">Los datos se llenarán conforme se confirmen pedidos en el simulador</p>
+      )}
       <ResponsiveContainer width="100%" height={200}>
-        <BarChart data={mockData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+        <BarChart data={dataPorDia} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#DBEAFE" />
           <XAxis dataKey="dia" tick={{ fontSize: 12, fill: "#64748b" }} axisLine={false} tickLine={false} />
           <YAxis tick={{ fontSize: 12, fill: "#64748b" }} axisLine={false} tickLine={false} />

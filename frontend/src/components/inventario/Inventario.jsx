@@ -1,6 +1,6 @@
 // src/components/inventario/Inventario.jsx
 import { useState } from "react";
-import { Plus, Pencil, Trash2, Package } from "lucide-react";
+import { Plus, Pencil, Trash2, Package, Image as ImageIcon } from "lucide-react";
 import { useNegocio } from "../../hooks/useNegocio";
 import { Button } from "../ui/Button";
 import { Badge } from "../ui/Badge";
@@ -12,6 +12,9 @@ export function Inventario() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editando, setEditando] = useState(null);
   const [confirmId, setConfirmId] = useState(null);
+
+  const { tipoNegocio, subTipoSalud } = state.negocio;
+  const esServicioSalud = tipoNegocio === "salud" && subTipoSalud !== "veterinaria";
 
   function handleSave(producto) {
     if (producto.id) editarProducto(producto);
@@ -35,14 +38,14 @@ export function Inventario() {
 
   return (
     <div className="max-w-5xl mx-auto">
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4 sm:gap-0">
         <div>
           <h1 className="font-heading text-3xl font-bold text-primary-dark">Inventario</h1>
           <p className="text-gray-500 text-sm mt-1">
             {state.inventario.length} productos registrados
           </p>
         </div>
-        <Button onClick={handleNuevo}>
+        <Button onClick={handleNuevo} className="w-full sm:w-auto justify-center">
           <Plus size={16} /> Agregar Producto
         </Button>
       </div>
@@ -59,11 +62,11 @@ export function Inventario() {
           </Button>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl shadow-md overflow-hidden">
-          <table className="w-full text-left">
+        <div className="bg-white rounded-2xl shadow-md overflow-hidden overflow-x-auto">
+          <table className="w-full text-left min-w-[600px]">
             <thead className="bg-muted border-b border-border">
               <tr>
-                {["Producto", "Precio", "Stock", "Acciones"].map(h => (
+                {["Producto", "Precio", esServicioSalud ? null : "Stock", "Acciones"].filter(Boolean).map(h => (
                   <th key={h} className="px-5 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wide">
                     {h}
                   </th>
@@ -74,17 +77,22 @@ export function Inventario() {
               {state.inventario.map(item => (
                 <tr key={item.id} className="hover:bg-muted/50 transition-colors">
                   <td className="px-5 py-4">
-                    <p className="font-semibold text-primary-dark text-sm">{item.nombre}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="font-semibold text-primary-dark text-sm">{item.nombre}</p>
+                      {item.fotoUrl && <ImageIcon size={14} className="text-blue-500" title="Contiene foto" />}
+                    </div>
                     {item.desc && <p className="text-xs text-gray-400 mt-0.5">{item.desc}</p>}
                   </td>
                   <td className="px-5 py-4 text-sm font-semibold text-primary-dark">
-                    ${item.precio.toFixed(2)}
+                    {item.precio > 0 ? `$${item.precio.toFixed(2)}` : "A convenir"}
                   </td>
-                  <td className="px-5 py-4">
-                    <Badge variant={item.stock <= state.umbralStock ? "danger" : "success"}>
-                      {item.stock} unids
-                    </Badge>
-                  </td>
+                  {!esServicioSalud && (
+                    <td className="px-5 py-4">
+                      <Badge variant={item.stock <= state.umbralStock ? "danger" : "success"}>
+                        {item.stock} unids
+                      </Badge>
+                    </td>
+                  )}
                   <td className="px-5 py-4">
                     <div className="flex gap-2">
                       <button

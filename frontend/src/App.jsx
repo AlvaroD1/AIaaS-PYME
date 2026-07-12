@@ -4,21 +4,25 @@ import { Layout } from "./components/layout/Layout";
 import { Dashboard } from "./components/dashboard/Dashboard";
 import { Inventario } from "./components/inventario/Inventario";
 import { Agenda } from "./components/agenda/Agenda";
+import { Equipo } from "./components/equipo/Equipo";
 import { Horario } from "./components/horario/Horario";
 import { MiNegocio } from "./components/config/MiNegocio";
 import { Suscripcion } from "./components/suscripcion/Suscripcion";
 import { Simulador } from "./components/simulador/Simulador";
 import { NotificacionesPanel } from "./components/notificaciones/NotificacionesPanel";
+import { ValidacionPedidos } from "./components/validacion/ValidacionPedidos";
 
 const VISTAS = {
   dashboard: Dashboard,
   inventario: Inventario,
+  equipo: Equipo,
   agenda: Agenda,
   horario: Horario,
   config: MiNegocio,
   suscripcion: Suscripcion,
   simulador: Simulador,
   notificaciones: NotificacionesPanel,
+  validacion: ValidacionPedidos,
 };
 
 function App() {

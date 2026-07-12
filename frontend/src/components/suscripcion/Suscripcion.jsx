@@ -5,7 +5,7 @@ const PLANES = [
   {
     id: "base",
     nombre: "Base",
-    precio: 100,
+    precio: 29,
     features: [
       "Agente IA (cloud · Gemini)",
       "Simulador WhatsApp",
@@ -17,7 +17,7 @@ const PLANES = [
   {
     id: "pro",
     nombre: "Pro",
-    precio: 200,
+    precio: 59,
     popular: true,
     features: [
       "Todo el plan Base",
@@ -31,7 +31,7 @@ const PLANES = [
   {
     id: "enterprise",
     nombre: "Enterprise",
-    precio: 300,
+    precio: 149,
     features: [
       "Todo el plan Pro",
       "IA Local offline (Ollama)",
@@ -72,7 +72,7 @@ export function Suscripcion() {
           <h3 className="font-heading font-semibold text-primary-dark mb-2">Configuración de IA Local</h3>
           <p className="text-sm text-gray-500 mb-3">Para activar la IA offline, instala Ollama en tu PC y configura el backend:</p>
           <pre className="bg-white border border-border rounded-lg p-4 text-xs text-primary-dark overflow-x-auto">
-{`# En tu .env del backend:
+            {`# En tu .env del backend:
 LOCAL_AI=true
 OLLAMA_URL=http://localhost:11434
 OLLAMA_MODEL=phi3.5
