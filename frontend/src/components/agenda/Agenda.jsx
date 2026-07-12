@@ -22,16 +22,16 @@ export function Agenda() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4 sm:gap-0">
         <div>
-          <h1 className="font-heading text-3xl font-bold text-primary-dark">Agenda</h1>
+          <h1 className="font-heading text-2xl sm:text-3xl font-bold text-primary-dark">Agenda</h1>
           <p className="text-gray-500 text-sm mt-1">{state.agenda.length} citas registradas</p>
         </div>
-        <Button onClick={() => setModalOpen(true)}><Plus size={16} /> Nueva Cita</Button>
+        <Button onClick={() => setModalOpen(true)} className="w-full sm:w-auto justify-center"><Plus size={16} /> Nueva Cita</Button>
       </div>
 
       {state.agenda.length === 0 ? (
-        <div className="bg-white rounded-2xl p-16 text-center shadow-md">
+        <div className="bg-white rounded-sm p-16 text-center border border-border">
           <CalendarDays size={48} className="text-gray-300 mx-auto mb-4" />
           <h3 className="font-heading font-semibold text-gray-500 mb-2">Sin citas agendadas</h3>
           <p className="text-gray-400 text-sm mb-6">{emptyText}</p>
@@ -40,7 +40,7 @@ export function Agenda() {
       ) : (
         <div className="space-y-3">
           {state.agenda.map(cita => (
-            <div key={cita.id} className="bg-white rounded-xl px-5 py-4 shadow-sm border border-border flex items-center justify-between">
+            <div key={cita.id} className="bg-white rounded-sm px-5 py-4 border border-border flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
                   <CalendarDays size={18} className="text-primary" />

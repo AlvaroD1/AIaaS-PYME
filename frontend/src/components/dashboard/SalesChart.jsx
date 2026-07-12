@@ -36,20 +36,17 @@ export function SalesChart() {
 
   return (
     <div className="bg-white rounded-2xl p-6 shadow-md">
-      <h3 className="font-heading font-semibold text-primary-dark mb-4">Ventas últimos 7 días</h3>
-      {!tieneData && (
-        <p className="text-xs text-gray-400 mb-2">Los datos se llenarán conforme se confirmen pedidos en el simulador</p>
-      )}
+      <h3 className="font-heading font-semibold text-primary-dark mb-4">Ventas ultimos 7 dias</h3>
       <ResponsiveContainer width="100%" height={200}>
         <BarChart data={dataPorDia} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#DBEAFE" />
           <XAxis dataKey="dia" tick={{ fontSize: 12, fill: "#64748b" }} axisLine={false} tickLine={false} />
           <YAxis tick={{ fontSize: 12, fill: "#64748b" }} axisLine={false} tickLine={false} />
           <Tooltip
-            contentStyle={{ borderRadius: "8px", border: "1px solid #DBEAFE", fontSize: "13px" }}
+            contentStyle={{ borderRadius: "4px", border: "1px solid #E2E8F0", fontSize: "13px" }}
             formatter={(v) => [`$${v}`, "Ventas"]}
           />
-          <Bar dataKey="ventas" fill="#1E40AF" radius={[4, 4, 0, 0]} />
+          <Bar dataKey="ventas" fill="#0F766E" radius={[2, 2, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>

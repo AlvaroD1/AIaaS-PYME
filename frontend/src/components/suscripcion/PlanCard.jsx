@@ -1,11 +1,13 @@
 import { Check } from "lucide-react";
 import { Button } from "../ui/Button";
 
-export function PlanCard({ nombre, precio, features, activo, popular, onSeleccionar }) {
+const SUFIJO_PERIODO = { mensual: "/mes", trimestral: "/trimestre", anual: "/año" };
+
+export function PlanCard({ nombre, precio, precioMensual, periodoLabel = "mensual", features, activo, popular, onSeleccionar }) {
   return (
     <div className={`
-      relative bg-white rounded-2xl shadow-md p-6 border-2 transition-all duration-200
-      ${activo ? "border-primary shadow-xl scale-[1.02]" : "border-border hover:border-secondary hover:shadow-lg"}
+      relative bg-white rounded-sm p-6 border-2 transition-all duration-200
+      ${activo ? "border-primary" : "border-border hover:border-secondary"}
     `}>
       {popular && (
         <div className="absolute -top-3 left-1/2 -translate-x-1/2">
@@ -20,7 +22,10 @@ export function PlanCard({ nombre, precio, features, activo, popular, onSeleccio
       <h3 className="font-heading font-bold text-primary-dark text-xl mb-1">{nombre}</h3>
       <div className="mb-5">
         <span className="text-3xl font-bold text-primary-dark">${precio}</span>
-        <span className="text-gray-400 text-sm">/mes</span>
+        <span className="text-gray-400 text-sm">{SUFIJO_PERIODO[periodoLabel]}</span>
+        {precioMensual && (
+          <p className="text-xs text-gray-400 mt-1">equivale a ${precioMensual}/mes</p>
+        )}
       </div>
       <ul className="space-y-2.5 mb-6">
         {features.map((f, i) => (

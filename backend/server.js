@@ -11,6 +11,10 @@ const pool = require("./config/db");
 
 const app = express();
 
+// Arrays en memoria para pedidos (MVP — no se persisten en DB aún)
+let pedidos = [];
+let pedidosPendientes = [];
+
 // ── Seguridad Base ───────────────────────────────────────────────
 // Oculta headers y previene ataques comunes (XSS, Clickjacking)
 app.use(helmet());
@@ -74,261 +78,302 @@ const chatLimiter = rateLimit({
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-// ── Almacén en memoria ─────────────────────────────────────────────
-let pedidos = [];
-let pedidosPendientes = [];
+// =====================================================================
+// ENDPOINTS CRUD — PRODUCTOS
+// =====================================================================
 
-// ── Endpoints de Base de Datos (PostgreSQL) ─────────────────────────
-
-// Obtener todos los productos de una pyme
+// GET /api/productos — Listar todos los productos de la PYME 1
 app.get("/api/productos", async (req, res) => {
-  const pymeId = req.query.pyme_id || 1; // Por defecto PYME 1 en el MVP
   try {
     const result = await pool.query(
-      "SELECT * FROM productos WHERE pyme_id = $1 ORDER BY fecha_creacion DESC",
-      [pymeId]
+      "SELECT * FROM productos WHERE pyme_id = 1 ORDER BY producto_id DESC"
     );
     res.json(result.rows);
-  } catch (error) {
-    console.error("Error obteniendo productos:", error);
-    res.status(500).json({ error: "Error del servidor" });
+  } catch (err) {
+    console.error("Error obteniendo productos:", err);
+    res.status(500).json({ error: "Error al obtener productos" });
   }
 });
 
-// Crear un producto
+// POST /api/productos — Crear un producto
 app.post("/api/productos", async (req, res) => {
-  const { nombre, descripcion, precio, stock_actual, stock_minimo, foto_url, pyme_id = 1 } = req.body;
   try {
+    const { nombre, descripcion, precio, stock_actual, stock_minimo, foto_url, pyme_id } = req.body;
     const result = await pool.query(
-      `INSERT INTO productos (pyme_id, nombre, descripcion, precio, stock_actual, stock_minimo, foto_url) 
+      `INSERT INTO productos (pyme_id, nombre, descripcion, precio, stock_actual, stock_minimo, foto_url)
        VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
-      [pyme_id, nombre, descripcion, precio || 0, stock_actual || 0, stock_minimo || 5, foto_url || null]
+      [pyme_id || 1, nombre, descripcion || "", precio, stock_actual || 0, stock_minimo || 5, foto_url || ""]
     );
     res.status(201).json(result.rows[0]);
-  } catch (error) {
-    console.error("Error creando producto:", error);
-    res.status(500).json({ error: "Error del servidor" });
+  } catch (err) {
+    console.error("Error creando producto:", err);
+    res.status(500).json({ error: "Error al crear producto" });
   }
 });
 
-// Actualizar un producto
+// PUT /api/productos/:id — Editar un producto
 app.put("/api/productos/:id", async (req, res) => {
-  const { id } = req.params;
-  const { nombre, descripcion, precio, stock_actual, foto_url } = req.body;
   try {
+    const { id } = req.params;
+    const { nombre, descripcion, precio, stock_actual, foto_url } = req.body;
     const result = await pool.query(
-      `UPDATE productos 
-       SET nombre = $1, descripcion = $2, precio = $3, stock_actual = $4, foto_url = $5 
+      `UPDATE productos SET nombre = $1, descripcion = $2, precio = $3, stock_actual = $4, foto_url = $5
        WHERE producto_id = $6 RETURNING *`,
-      [nombre, descripcion, precio, stock_actual, foto_url || null, id]
+      [nombre, descripcion || "", precio, stock_actual, foto_url || "", id]
     );
-    if (result.rows.length === 0) return res.status(404).json({ error: "Producto no encontrado" });
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Producto no encontrado" });
+    }
     res.json(result.rows[0]);
-  } catch (error) {
-    console.error("Error actualizando producto:", error);
-    res.status(500).json({ error: "Error del servidor" });
+  } catch (err) {
+    console.error("Error editando producto:", err);
+    res.status(500).json({ error: "Error al editar producto" });
   }
 });
 
-// Eliminar un producto
+// DELETE /api/productos/:id — Eliminar un producto
 app.delete("/api/productos/:id", async (req, res) => {
-  const { id } = req.params;
   try {
-    const result = await pool.query("DELETE FROM productos WHERE producto_id = $1 RETURNING *", [id]);
-    if (result.rows.length === 0) return res.status(404).json({ error: "Producto no encontrado" });
-    res.json({ message: "Producto eliminado", deleted: result.rows[0] });
-  } catch (error) {
-    console.error("Error eliminando producto:", error);
-    res.status(500).json({ error: "Error del servidor" });
+    const { id } = req.params;
+    await pool.query("DELETE FROM productos WHERE producto_id = $1", [id]);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error("Error eliminando producto:", err);
+    res.status(500).json({ error: "Error al eliminar producto" });
   }
 });
 
-// ── Equipo Médico ───────────────────────────────────────────────────
+// =====================================================================
+// ENDPOINTS CRUD — EQUIPO MÉDICO
+// =====================================================================
+
+// GET /api/equipo — Listar equipo médico de la PYME 1
 app.get("/api/equipo", async (req, res) => {
-  const pymeId = req.query.pyme_id || 1;
-  try {
-    const result = await pool.query("SELECT * FROM equipo_medico WHERE pyme_id = $1 ORDER BY miembro_id ASC", [pymeId]);
-    res.json(result.rows);
-  } catch (error) {
-    res.status(500).json({ error: "Error del servidor" });
-  }
-});
-
-app.post("/api/equipo", async (req, res) => {
-  const { nombre, especialidad, pyme_id = 1 } = req.body;
   try {
     const result = await pool.query(
-      "INSERT INTO equipo_medico (pyme_id, nombre, especialidad) VALUES ($1, $2, $3) RETURNING *",
-      [pyme_id, nombre, especialidad]
+      "SELECT * FROM equipo_medico WHERE pyme_id = 1 ORDER BY miembro_id DESC"
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error("Error obteniendo equipo:", err);
+    res.status(500).json({ error: "Error al obtener equipo" });
+  }
+});
+
+// POST /api/equipo — Agregar miembro al equipo
+app.post("/api/equipo", async (req, res) => {
+  try {
+    const { nombre, especialidad } = req.body;
+    const result = await pool.query(
+      `INSERT INTO equipo_medico (pyme_id, nombre, especialidad)
+       VALUES (1, $1, $2) RETURNING *`,
+      [nombre, especialidad]
     );
     res.status(201).json(result.rows[0]);
-  } catch (error) {
-    res.status(500).json({ error: "Error del servidor" });
+  } catch (err) {
+    console.error("Error agregando miembro:", err);
+    res.status(500).json({ error: "Error al agregar miembro" });
   }
 });
 
+// DELETE /api/equipo/:id — Eliminar miembro del equipo
 app.delete("/api/equipo/:id", async (req, res) => {
-  const { id } = req.params;
   try {
-    const result = await pool.query("DELETE FROM equipo_medico WHERE miembro_id = $1 RETURNING *", [id]);
-    if (result.rows.length === 0) return res.status(404).json({ error: "Miembro no encontrado" });
-    res.json({ message: "Eliminado exitosamente" });
-  } catch (error) {
-    res.status(500).json({ error: "Error del servidor" });
+    const { id } = req.params;
+    await pool.query("DELETE FROM equipo_medico WHERE miembro_id = $1", [id]);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error("Error eliminando miembro:", err);
+    res.status(500).json({ error: "Error al eliminar miembro" });
   }
 });
 
-// ── Horarios ────────────────────────────────────────────────────────
+// =====================================================================
+// ENDPOINTS — HORARIOS
+// =====================================================================
+
+// GET /api/horarios — Obtener horarios de la PYME 1
 app.get("/api/horarios", async (req, res) => {
-  const pymeId = req.query.pyme_id || 1;
   try {
-    const result = await pool.query("SELECT * FROM horarios WHERE pyme_id = $1", [pymeId]);
+    const result = await pool.query(
+      "SELECT * FROM horarios WHERE pyme_id = 1 ORDER BY horario_id"
+    );
     res.json(result.rows);
-  } catch (error) {
-    res.status(500).json({ error: "Error del servidor" });
+  } catch (err) {
+    console.error("Error obteniendo horarios:", err);
+    res.status(500).json({ error: "Error al obtener horarios" });
   }
 });
 
+// PUT /api/horarios — Actualizar horarios (upsert por día)
 app.put("/api/horarios", async (req, res) => {
-  const { pyme_id = 1, horarios } = req.body;
-  // horarios es un objeto { lunes: { activo, apertura, cierre, dobleJornada... }, martes: ... }
   try {
-    // Usamos una transacción para actualizar toda la semana de forma segura
-    const client = await pool.connect();
-    try {
-      await client.query("BEGIN");
-      for (const [dia, data] of Object.entries(horarios)) {
-        await client.query(`
-          INSERT INTO horarios (pyme_id, dia_semana, activo, apertura, cierre, apertura2, cierre2)
-          VALUES ($1, $2, $3, $4, $5, $6, $7)
-          ON CONFLICT ON CONSTRAINT horarios_pyme_id_dia_semana_key 
-          DO UPDATE SET 
-            activo = EXCLUDED.activo, apertura = EXCLUDED.apertura, cierre = EXCLUDED.cierre, 
-            apertura2 = EXCLUDED.apertura2, cierre2 = EXCLUDED.cierre2
-        `, [
-          pyme_id, dia, data.activo, 
-          data.apertura || "08:00", data.cierre || "18:00", 
-          data.dobleJornada ? (data.apertura2 || "14:00") : null, 
-          data.dobleJornada ? (data.cierre2 || "18:00") : null
-        ]);
-      }
-      await client.query("COMMIT");
-      res.json({ message: "Horarios actualizados correctamente" });
-    } catch (e) {
-      await client.query("ROLLBACK");
-      throw e;
-    } finally {
-      client.release();
+    const { horarios } = req.body; // Objeto { lunes: { activo, apertura, cierre, ... }, ... }
+    const dias = Object.keys(horarios);
+
+    for (const dia of dias) {
+      const h = horarios[dia];
+      await pool.query(
+        `INSERT INTO horarios (pyme_id, dia_semana, activo, apertura, cierre, apertura2, cierre2)
+         VALUES (1, $1, $2, $3, $4, $5, $6)
+         ON CONFLICT (pyme_id, dia_semana)
+         DO UPDATE SET activo = $2, apertura = $3, cierre = $4, apertura2 = $5, cierre2 = $6`,
+        [
+          dia,
+          h.activo,
+          h.apertura || null,
+          h.cierre || null,
+          h.dobleJornada ? (h.apertura2 || null) : null,
+          h.dobleJornada ? (h.cierre2 || null) : null,
+        ]
+      );
     }
-  } catch (error) {
-    console.error("Error guardando horarios:", error);
-    res.status(500).json({ error: "Error del servidor" });
+
+    res.json({ ok: true });
+  } catch (err) {
+    console.error("Error actualizando horarios:", err);
+    res.status(500).json({ error: "Error al actualizar horarios" });
   }
 });
 
-// ── Agenda (Citas) ──────────────────────────────────────────────────
+// =====================================================================
+// ENDPOINTS — AGENDA (CITAS)
+// =====================================================================
+
+// GET /api/agenda — Listar citas de la PYME 1
 app.get("/api/agenda", async (req, res) => {
-  const pymeId = req.query.pyme_id || 1;
   try {
-    // Unimos citas con clientes
     const result = await pool.query(`
-      SELECT c.*, cl.nombre as cliente_nombre, cl.telefono as cliente_telefono
+      SELECT c.cita_id, c.fecha, c.hora, c.estado, c.miembro_equipo_id,
+             cl.nombre AS cliente_nombre, cl.telefono AS cliente_telefono
       FROM citas c
       LEFT JOIN clientes cl ON c.cliente_id = cl.cliente_id
-      WHERE c.pyme_id = $1
-      ORDER BY c.fecha ASC, c.hora ASC
-    `, [pymeId]);
+      WHERE c.pyme_id = 1
+      ORDER BY c.fecha DESC, c.hora ASC
+    `);
     res.json(result.rows);
-  } catch (error) {
-    res.status(500).json({ error: "Error del servidor" });
+  } catch (err) {
+    console.error("Error obteniendo agenda:", err);
+    res.status(500).json({ error: "Error al obtener agenda" });
   }
 });
 
+// POST /api/agenda — Crear una cita
 app.post("/api/agenda", async (req, res) => {
-  const { cliente_nombre, cliente_telefono, servicio, miembro_equipo_id, fecha, hora, pyme_id = 1 } = req.body;
   try {
-    const client = await pool.connect();
-    try {
-      await client.query("BEGIN");
-      
-      // 1. Crear o buscar cliente (por nombre para MVP, idealmente por teléfono)
-      let clienteId = null;
-      if (cliente_nombre) {
-        const clienteRes = await client.query(
-          "INSERT INTO clientes (pyme_id, nombre, telefono) VALUES ($1, $2, $3) RETURNING cliente_id",
-          [pyme_id, cliente_nombre, cliente_telefono || ""]
+    const { cliente_nombre, cliente_telefono, servicio, fecha, hora, miembro_equipo_id } = req.body;
+
+    // 1. Buscar o crear cliente
+    let clienteId;
+    if (cliente_telefono) {
+      const existente = await pool.query(
+        "SELECT cliente_id FROM clientes WHERE pyme_id = 1 AND telefono = $1",
+        [cliente_telefono]
+      );
+      if (existente.rows.length > 0) {
+        clienteId = existente.rows[0].cliente_id;
+      } else {
+        const nuevo = await pool.query(
+          "INSERT INTO clientes (pyme_id, nombre, telefono) VALUES (1, $1, $2) RETURNING cliente_id",
+          [cliente_nombre, cliente_telefono]
         );
-        clienteId = clienteRes.rows[0].cliente_id;
+        clienteId = nuevo.rows[0].cliente_id;
       }
-
-      // 2. Crear cita
-      // Nota: servicio_id es bigint, para MVP permitimos null si no hay un servicio referenciado, 
-      // o guardamos el nombre del servicio en una columna de texto si fuera necesario. 
-      // Por simplicidad, dejaremos servicio_id en null para el MVP ya que el campo de tabla es opcional (bigint, sin foreign key estricta o podemos dejarlo null).
-      const citaRes = await client.query(`
-        INSERT INTO citas (pyme_id, cliente_id, miembro_equipo_id, fecha, hora, estado)
-        VALUES ($1, $2, $3, $4, $5, 'agendada') RETURNING *
-      `, [pyme_id, clienteId, miembro_equipo_id || null, fecha, hora]);
-
-      await client.query("COMMIT");
-      
-      // Retornar la cita con el nombre del cliente pegado (para el frontend)
-      const cita = citaRes.rows[0];
-      cita.cliente_nombre = cliente_nombre;
-      cita.cliente_telefono = cliente_telefono;
-      cita.servicio = servicio; // Mocked para el frontend
-      
-      res.status(201).json(cita);
-    } catch (e) {
-      await client.query("ROLLBACK");
-      throw e;
-    } finally {
-      client.release();
+    } else {
+      // Sin teléfono, crear cliente genérico
+      const nuevo = await pool.query(
+        "INSERT INTO clientes (pyme_id, nombre, telefono) VALUES (1, $1, $2) RETURNING cliente_id",
+        [cliente_nombre, `temp-${Date.now()}`]
+      );
+      clienteId = nuevo.rows[0].cliente_id;
     }
-  } catch (error) {
-    console.error("Error creando cita:", error);
-    res.status(500).json({ error: "Error del servidor" });
+
+    // 2. Buscar producto/servicio si aplica
+    let servicioId = null;
+    if (servicio) {
+      const prod = await pool.query(
+        "SELECT producto_id FROM productos WHERE pyme_id = 1 AND LOWER(nombre) = LOWER($1)",
+        [servicio]
+      );
+      if (prod.rows.length > 0) {
+        servicioId = prod.rows[0].producto_id;
+      }
+    }
+
+    // 3. Insertar cita
+    const result = await pool.query(
+      `INSERT INTO citas (pyme_id, cliente_id, servicio_id, miembro_equipo_id, fecha, hora)
+       VALUES (1, $1, $2, $3, $4, $5) RETURNING *`,
+      [clienteId, servicioId, miembro_equipo_id || null, fecha, hora]
+    );
+
+    // Retornar con datos del cliente
+    res.status(201).json({
+      ...result.rows[0],
+      cliente_nombre,
+      cliente_telefono: cliente_telefono || "",
+      servicio: servicio || "",
+    });
+  } catch (err) {
+    console.error("Error creando cita:", err);
+    res.status(500).json({ error: "Error al crear cita" });
   }
 });
 
+// PUT /api/agenda/:id/estado — Cambiar estado de una cita
 app.put("/api/agenda/:id/estado", async (req, res) => {
-  const { id } = req.params;
-  const { estado } = req.body; // 'confirmada', 'cancelada', 'completada'
   try {
+    const { id } = req.params;
+    const { estado } = req.body;
     const result = await pool.query(
       "UPDATE citas SET estado = $1 WHERE cita_id = $2 RETURNING *",
       [estado, id]
     );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Cita no encontrada" });
+    }
     res.json(result.rows[0]);
-  } catch (error) {
-    res.status(500).json({ error: "Error del servidor" });
+  } catch (err) {
+    console.error("Error actualizando cita:", err);
+    res.status(500).json({ error: "Error al actualizar cita" });
   }
 });
 
-// ── Notificaciones (Alertas) ────────────────────────────────────────
+// =====================================================================
+// ENDPOINTS — NOTIFICACIONES (ALERTAS)
+// =====================================================================
+
+// GET /api/notificaciones — Listar alertas de la PYME 1
 app.get("/api/notificaciones", async (req, res) => {
-  const pymeId = req.query.pyme_id || 1;
   try {
-    const result = await pool.query("SELECT * FROM alertas WHERE pyme_id = $1 ORDER BY fecha_creacion DESC LIMIT 50", [pymeId]);
+    const result = await pool.query(
+      "SELECT * FROM alertas WHERE pyme_id = 1 ORDER BY fecha_creacion DESC LIMIT 50"
+    );
     res.json(result.rows);
-  } catch (error) {
-    res.status(500).json({ error: "Error del servidor" });
+  } catch (err) {
+    console.error("Error obteniendo notificaciones:", err);
+    res.status(500).json({ error: "Error al obtener notificaciones" });
   }
 });
 
+// PUT /api/notificaciones/marcar-leidas — Marcar todas como leídas
 app.put("/api/notificaciones/marcar-leidas", async (req, res) => {
-  const pymeId = req.body.pyme_id || 1;
   try {
-    await pool.query("UPDATE alertas SET leida = true WHERE pyme_id = $1 AND leida = false", [pymeId]);
-    res.json({ message: "Notificaciones marcadas como leídas" });
-  } catch (error) {
-    res.status(500).json({ error: "Error del servidor" });
+    await pool.query("UPDATE alertas SET leida = TRUE WHERE pyme_id = 1 AND leida = FALSE");
+    res.json({ ok: true });
+  } catch (err) {
+    console.error("Error marcando notificaciones:", err);
+    res.status(500).json({ error: "Error al marcar notificaciones" });
   }
 });
 
-// ── Endpoint de chat ───────────────────────────────────────────────
+// =====================================================================
+// ENDPOINT — CHAT CON GEMINI
+// =====================================================================
+
 app.post("/api/chat", chatLimiter, async (req, res) => {
-  const { mensaje, configuracion, inventario, equipo, agenda, horario, fueraDeHorario, historial } =
+  // Recibimos todo el contexto del negocio desde la interfaz
+  const { mensaje, configuracion, inventario, equipo, agenda, horario, historial, fueraDeHorario } =
     req.body;
 
   try {
@@ -338,7 +383,7 @@ app.post("/api/chat", chatLimiter, async (req, res) => {
 
     if (tipo === "salud") {
       const subTipo = configuracion.subTipoSalud;
-      
+
       if (subTipo === "veterinaria") {
         contextoSector = `
 CONTEXTO DE SECTOR – VETERINARIA:
@@ -400,49 +445,24 @@ CONTEXTO DE SECTOR – ACADEMIA / EDUCACIÓN:
 Eres el asistente virtual de "${configuracion.nombre}".
 Tu estilo de respuesta debe ser amigable, claro y al grano, diseñado para ventas por WhatsApp.
 
-CONTEXTO DEL NEGOCIO:
-- Tipo de negocio: ${tipo} (Puede ser: productos, servicios, restaurante, salud, academia, o mixto).
-- Estado actual del tiempo: ${fueraDeHorario ? "FUERA DEL HORARIO LABORAL" : "DENTRO DEL HORARIO LABORAL"}.
 ${contextoSector}
-DATOS OPERATIVOS:
-- Horario de atención del negocio:
-- ${horarioTexto}
-- Inventario/Menú/Catálogo actual: ${JSON.stringify(inventario)}
-- Agenda de citas ocupadas: ${JSON.stringify(agenda)}
 
-REGLAS ESTRICTAS DE COMPORTAMIENTO:
+            CONTEXTO DEL NEGOCIO:
+            - Tipo de negocio: ${configuracion.tipoNegocio} (Puede ser: productos, servicios, comida, o ambos).
+            - Estado actual del tiempo: ${fueraDeHorario ? "FUERA DEL HORARIO LABORAL" : "DENTRO DEL HORARIO LABORAL"}.
+            - Horario de atención:
+            - ${horarioTexto}
 
-1. REGLA DE HORARIO (CRÍTICA):
-   - Si el estado es 'FUERA DEL HORARIO LABORAL' y el cliente intenta hacer un pedido o reservar POR PRIMERA VEZ en la conversación, responde advirtiendo que está fuera de horario y que su solicitud será atendida en orden de llegada al día siguiente, asigna un número de turno aleatorio, y pregunta "¿Deseas continuar con tu solicitud?".
-   - IMPORTANTE: Si el cliente YA FUE advertido sobre el horario y responde afirmativamente, NO repitas la advertencia. Procede normalmente.
+            DATOS OPERATIVOS:
+            - Inventario/Menú actual: ${JSON.stringify(inventario)}
+            - Agenda de citas ocupadas: ${JSON.stringify(agenda)}
 
-${vendeProductosFisicos ? `2. REGLA DE PEDIDOS GRANDES (CRÍTICA):
-   Si el tipo de negocio incluye 'comida' o 'restaurante' y el cliente pide más de 20 platos/unidades en TOTAL:
-   a) NO confirmes el pedido directamente.
-   b) Responde amablemente explicando que los pedidos de más de 20 unidades requieren validación manual.
-   c) Al FINAL de tu respuesta, agrega un bloque con el siguiente formato EXACTO:
-      [PEDIDO_PENDIENTE]{"items":[{"nombre":"Nombre","cantidad":25,"precioUnitario":10.00}],"total":250.00,"motivo":"Pedido grande: más de 20 unidades"}[/PEDIDO_PENDIENTE]
-   d) NO uses el bloque [PEDIDO_CONFIRMADO] para estos pedidos.` : ""}
-
-${vendeServicios ? `3. REGLA DE SERVICIOS Y HORARIOS: 
-   - Revisa el "Horario de atención del negocio". NO puedes agendar citas fuera de este horario ni en días en los que el negocio está cerrado (no activos).
-   - Pide al cliente la fecha y hora que desea, revisa la "Agenda de citas ocupadas" y comprueba que la hora solicitada esté DENTRO del horario de atención para ese día.
-   - Si la hora choca con otra cita, o está fuera del horario de atención, explícale el horario de apertura al cliente y ofrécele una hora distinta.
-   - Al confirmar una cita/servicio, usa SIEMPRE el bloque [CITA_CONFIRMADA] y NUNCA [PEDIDO_CONFIRMADO].
-   Formato: [CITA_CONFIRMADA]{"cliente":"Nombre","fecha":"YYYY-MM-DD","hora":"HH:MM","servicio":"Nombre Servicio"}[/CITA_CONFIRMADA]` : ""}
-
-4. REGLA DE INVENTARIO: Solo puedes vender/ofrecer lo que haya en tu catálogo (productos o servicios). Si piden algo que no hay, ofrece alternativas. Si el cliente pide una foto de un producto, revisa si el catálogo incluye una 'foto_url' y entrégala; si no, indícale amablemente que no cuentas con fotos de momento.
-
-${vendeProductosFisicos ? `5. REGLA DE CONFIRMACIÓN DE PRODUCTOS/COMIDA (MUY IMPORTANTE):
-   Cuando el cliente confirme la compra de PRODUCTOS FÍSICOS o COMIDA y el total sea de 20 unidades o menos, debes:
-   a) Responder con un mensaje amigable confirmando el pedido con el detalle.
-   b) Al FINAL de tu respuesta, agregar en una línea aparte un bloque con el siguiente formato EXACTO (sin espacios extra):
-      [PEDIDO_CONFIRMADO]{"items":[{"nombre":"Nombre del producto","cantidad":1,"precioUnitario":10.00}],"total":10.00}[/PEDIDO_CONFIRMADO]
-   c) El bloque debe contener TODOS los productos confirmados con su cantidad y precio.
-   d) El "total" debe ser la suma correcta de (cantidad * precioUnitario) de todos los items.
-   e) Los precios deben tomarse del inventario proporcionado.
-   f) Este bloque es OBLIGATORIO cada vez que se confirme un pedido físico.` : ""}
-`;
+            REGLAS ESTRICTAS DE COMPORTAMIENTO:
+            1. REGLA DE HORARIO (CRÍTICA): Si el estado es 'FUERA DEL HORARIO LABORAL' y el cliente intenta hacer un pedido o reservar, DEBES detener la conversación y responder EXACTAMENTE con esta frase adaptada: "Estás a punto de realizar un pedido fuera de nuestras horas de trabajo. Tu solicitud será atendida en orden de llegada al día siguiente. Tu número de turno es el #${Math.floor(Math.random() * 100) + 10}. ¿Deseas continuar con tu pedido?".
+            2. REGLA DE COMIDA: Si el tipo de negocio incluye 'comida' y el cliente pide más de 20 platos/unidades, advierte amablemente que los pedidos grandes requieren validación manual del local por temas de preparación.
+            3. REGLA DE SERVICIOS: Si ofrecen servicios (ej. barbería, salón), pide al cliente la fecha y hora que desea, revisa la "Agenda de citas ocupadas" y si la hora choca, ofrécele una hora distinta.
+            4. REGLA DE INVENTARIO: Solo puedes vender lo que haya en stock. Si piden algo que no hay, ofrece alternativas.
+        `;
 
     const model = genAI.getGenerativeModel({
       model: "gemini-2.5-flash",

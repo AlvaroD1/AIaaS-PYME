@@ -25,13 +25,13 @@ export function Equipo() {
   return (
     <div className="max-w-4xl mx-auto">
       <div className="mb-8">
-        <h1 className="font-heading text-3xl font-bold text-primary-dark flex items-center gap-3">
+        <h1 className="font-heading text-2xl sm:text-3xl font-bold text-primary-dark flex items-center gap-3">
           <Users size={28} className="text-primary" /> Equipo Médico
         </h1>
         <p className="text-gray-500 text-sm mt-1">Registra a los profesionales que atienden en tu consultorio.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Formulario */}
         <div className="bg-white rounded-2xl shadow-md p-6 h-fit">
           <h2 className="font-heading font-semibold text-lg text-primary-dark mb-4 flex items-center gap-2">

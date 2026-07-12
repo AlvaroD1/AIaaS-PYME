@@ -9,56 +9,52 @@ export function Dashboard() {
   const { negocio, inventario, agenda, pedidos = [] } = state;
   const tipo = negocio.tipoNegocio;
   const subTipo = negocio.subTipoSalud;
-  
+
   const tieneInventario = ["productos", "restaurante", "mixto", "academia"].includes(tipo) || (tipo === "salud" && subTipo === "veterinaria");
   const tieneServicios = ["servicios", "mixto", "salud", "academia"].includes(tipo);
 
   const stockBajos = inventario.filter(p => p.stock <= state.umbralStock).length;
-  const citasHoy   = agenda.filter(c => c.fecha === "Hoy").length;
+  const citasHoy = agenda.filter(c => {
+    const hoy = new Date().toISOString().split("T")[0];
+    return c.fecha === hoy || c.fecha === "Hoy";
+  }).length;
 
-  // Calcular ventas reales de la semana
-  const ahora = new Date();
-  const inicioSemana = new Date(ahora);
-  inicioSemana.setDate(ahora.getDate() - ahora.getDay());
-  inicioSemana.setHours(0, 0, 0, 0);
-
-  const pedidosSemana = pedidos.filter(p => new Date(p.fecha) >= inicioSemana);
-  const ventasSemana = pedidosSemana.reduce((sum, p) => sum + (p.total || 0), 0);
-  const totalPedidos = pedidosSemana.length;
-
-  // Últimos 5 pedidos para la lista
-  const pedidosRecientes = pedidos.slice(0, 5);
+  // Calcular columnas del grid según cuántas KPI cards hay
+  let kpiCount = 2; // Ventas + Consultas siempre visibles
+  if (tieneServicios) kpiCount++;
+  if (tieneInventario) kpiCount++;
+  const colsClass = kpiCount <= 2 ? "sm:grid-cols-2" : kpiCount === 3 ? "sm:grid-cols-3" : "sm:grid-cols-2 lg:grid-cols-4";
 
   return (
-    <div className="max-w-5xl mx-auto">
-      <div className="mb-8">
-        <h1 className="font-heading text-3xl font-bold text-primary-dark">
+    <div className="max-w-6xl mx-auto">
+      <div className="mb-6 sm:mb-10 pb-4 sm:pb-6 border-b border-border">
+        <h1 className="font-heading text-2xl sm:text-4xl font-bold text-primary-dark tracking-tight">
           Bienvenido, {negocio.nombre}
         </h1>
-        <p className="text-gray-500 text-sm mt-1">Resumen de tu negocio hoy</p>
+        <p className="text-gray-400 text-sm mt-2">Resumen de tu negocio hoy</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+      <div className={`grid grid-cols-1 ${colsClass} border border-border divide-y sm:divide-y-0 sm:divide-x divide-border mb-6 sm:mb-8`}>
         <KPICard
           titulo="Ventas de la semana"
-          valor={`$${ventasSemana.toFixed(2)}`}
-          subtitulo={`${totalPedidos} pedido${totalPedidos !== 1 ? "s" : ""} esta semana`}
+          valor="$425.50"
+          subtitulo="Datos de ejemplo"
           color="border-onboard-green"
           icon={TrendingUp}
         />
         <KPICard
-          titulo="Pedidos totales"
-          valor={pedidos.length}
-          subtitulo="Histórico total"
+          titulo="Consultas WhatsApp"
+          valor="128"
+          subtitulo="Esta semana"
           color="border-secondary"
-          icon={ShoppingCart}
+          icon={MessageSquare}
         />
         {tieneServicios && (
           <KPICard
             titulo="Citas hoy"
             valor={citasHoy}
             subtitulo="Agenda del dia"
-            color="border-accent"
+            tono="neutral"
             icon={CalendarDays}
           />
         )}
@@ -68,63 +64,15 @@ export function Dashboard() {
             valor={stockBajos}
             subtitulo={`Umbral: <= ${state.umbralStock} unidades`}
             color={stockBajos > 0 ? "border-destructive" : "border-green-400"}
-            icon={MessageSquare}
+            icon={ShoppingCart}
           />
         )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         <SalesChart />
-
-        {/* Pedidos Recientes */}
-        <div className="bg-white rounded-2xl p-6 shadow-md">
-          <h3 className="font-heading font-semibold text-primary-dark mb-4 flex items-center gap-2">
-            <Package size={18} className="text-primary" /> Pedidos recientes
-          </h3>
-          {pedidosRecientes.length === 0 ? (
-            <div className="text-center py-8">
-              <ShoppingCart size={40} className="mx-auto text-gray-300 mb-3" />
-              <p className="text-gray-400 text-sm">Aún no hay pedidos confirmados.</p>
-              <p className="text-gray-300 text-xs mt-1">Los pedidos del simulador aparecerán aquí</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {pedidosRecientes.map(pedido => (
-                <div key={pedido.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100 hover:border-primary/20 transition-colors">
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-primary-dark">
-                      {pedido.items?.map(i => `${i.cantidad}x ${i.nombre}`).join(", ") || "Pedido"}
-                    </p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Clock size={12} className="text-gray-400" />
-                      <span className="text-xs text-gray-400">
-                        {new Date(pedido.fecha).toLocaleString("es-ES", {
-                          day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit"
-                        })}
-                      </span>
-                      {pedido.fueraDeHorario && (
-                        <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium">
-                          Fuera de horario
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <span className="text-sm font-bold text-onboard-green">
-                    ${pedido.total?.toFixed(2) || "0.00"}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        {tieneInventario && <AlertasPanel />}
       </div>
-
-      {/* Alertas de stock debajo si aplica */}
-      {tieneInventario && (
-        <div className="mt-6">
-          <AlertasPanel />
-        </div>
-      )}
     </div>
   );
 }

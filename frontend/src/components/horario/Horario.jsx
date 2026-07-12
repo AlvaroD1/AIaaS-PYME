@@ -1,8 +1,8 @@
 import { Clock, Sun, Moon } from "lucide-react";
 import { useNegocio } from "../../hooks/useNegocio";
 
-const DIAS = ["lunes","martes","miercoles","jueves","viernes","sabado","domingo"];
-const DIAS_LABEL = { lunes:"Lunes", martes:"Martes", miercoles:"Miércoles", jueves:"Jueves", viernes:"Viernes", sabado:"Sábado", domingo:"Domingo" };
+const DIAS = ["lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"];
+const DIAS_LABEL = { lunes: "Lunes", martes: "Martes", miercoles: "Miércoles", jueves: "Jueves", viernes: "Viernes", sabado: "Sábado", domingo: "Domingo" };
 
 // Tipos de negocio que comúnmente manejan doble jornada
 const TIPOS_DOBLE_JORNADA = ["salud", "academia", "servicios", "mixto"];
@@ -59,10 +59,10 @@ export function Horario() {
   return (
     <div className="max-w-2xl mx-auto">
       <div className="mb-8">
-        <h1 className="font-heading text-3xl font-bold text-primary-dark flex items-center gap-3">
+        <h1 className="font-heading text-2xl sm:text-3xl font-bold text-primary-dark flex items-center gap-3">
           <Clock size={28} className="text-primary" /> Horario de Atención
         </h1>
-        <p className="text-gray-500 text-sm mt-1">El agente usará este horario para gestionar consultas fuera de hora.</p>
+        <p className="text-gray-500 text-xs sm:text-sm mt-1">El agente usará este horario para gestionar consultas fuera de hora.</p>
       </div>
 
       {/* Botón rápido de doble jornada */}
@@ -94,7 +94,7 @@ export function Horario() {
         </div>
       )}
 
-      <div className="bg-white rounded-2xl shadow-md divide-y divide-border">
+      <div className="bg-white rounded-sm border border-border divide-y divide-border">
         {DIAS.map(dia => (
           <div key={dia} className="px-6 py-4">
             <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">

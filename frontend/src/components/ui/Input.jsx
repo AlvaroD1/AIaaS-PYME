@@ -14,9 +14,9 @@ export function Input({ label, value, onChange, placeholder, required, error, he
         placeholder={placeholder}
         required={required}
         className={`
-          w-full px-4 py-3 rounded-lg border text-primary-dark text-sm
+          w-full px-4 py-3 rounded-sm border text-primary-dark text-sm
           bg-white transition-all duration-200 outline-none
-          ${error ? "border-destructive focus:ring-2 focus:ring-red-200" : "border-border focus:border-primary focus:ring-2 focus:ring-blue-100"}
+          ${error ? "border-destructive focus:ring-2 focus:ring-red-200" : "border-border focus:border-primary focus:ring-2 focus:ring-teal-100"}
           ${className}
         `}
       />
@@ -39,9 +39,9 @@ export function Select({ label, value, onChange, options, required, className = 
         onChange={onChange}
         required={required}
         className={`
-          w-full px-4 py-3 rounded-lg border border-border bg-white
+          w-full px-4 py-3 rounded-sm border border-border bg-white
           text-primary-dark text-sm cursor-pointer
-          focus:border-primary focus:ring-2 focus:ring-blue-100 outline-none
+          focus:border-primary focus:ring-2 focus:ring-teal-100 outline-none
           transition-all duration-200 ${className}
         `}
       >

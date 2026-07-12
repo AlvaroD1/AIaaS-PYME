@@ -17,10 +17,10 @@ export function Simulador() {
   const messagesEndRef = useRef(null);
 
   const ahora = new Date();
-  const diaActual = ["domingo","lunes","martes","miercoles","jueves","viernes","sabado"][ahora.getDay()];
+  const diaActual = ["domingo", "lunes", "martes", "miercoles", "jueves", "viernes", "sabado"][ahora.getDay()];
   const horaActual = ahora.getHours() * 60 + ahora.getMinutes();
   const horarioDia = horario[diaActual];
-  function timeToMin(t) { const [h,m] = t.split(":").map(Number); return h*60+m; }
+  function timeToMin(t) { const [h, m] = t.split(":").map(Number); return h * 60 + m; }
   const enHorario = horarioDia?.activo
     ? horaActual >= timeToMin(horarioDia.apertura) && horaActual <= timeToMin(horarioDia.cierre)
     : false;
@@ -173,7 +173,6 @@ export function Simulador() {
           agenda,
           horario,
           fueraDeHorario: !enHorario,
-          historial: historialPrevio,
         }),
       });
       const data = await res.json();
@@ -190,26 +189,31 @@ export function Simulador() {
   }
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center w-full">
       {/* Header */}
-      <div className="w-full max-w-md mb-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          {enHorario
-            ? <><Wifi size={16} className="text-green-600" /><span className="text-xs text-green-600 font-medium">En horario</span></>
-            : <><WifiOff size={16} className="text-gray-400" /><span className="text-xs text-gray-400">Fuera de horario</span></>
-          }
+      <div className="w-full max-w-md mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0 px-2 sm:px-0">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            {enHorario
+              ? <><Wifi size={16} className="text-green-600" /><span className="text-xs text-green-600 font-medium">En horario</span></>
+              : <><WifiOff size={16} className="text-gray-400" /><span className="text-xs text-gray-400">Fuera de horario</span></>
+            }
+          </div>
+          <span className="text-xs text-gray-400 border-l border-border pl-3">
+            {historial.filter(m => m.remitente === "user").length} mensajes
+          </span>
         </div>
         <Button size="sm" variant="secondary" onClick={() => setConnectModal(true)}>
-          <Link size={14} /> Conectar WhatsApp
+          <Link size={14} /> <span className="hidden sm:inline">Conectar</span> WhatsApp
         </Button>
       </div>
 
       {/* Chat mock */}
-      <div className="w-full max-w-md h-[600px] flex flex-col bg-[#efeae2] rounded-2xl overflow-hidden shadow-xl">
+      <div className="w-full max-w-md h-[calc(100vh-200px)] sm:h-[600px] flex flex-col bg-[#efeae2] rounded-2xl overflow-hidden shadow-xl">
         {/* WA Header */}
         <div className="bg-[#075e54] text-white px-4 py-3 flex items-center gap-3">
-          <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
-            <span className="text-[#075e54] font-bold text-sm">{(agente.nombre || "A")[0]}</span>
+          <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-lg">
+            {agente.avatar || (agente.nombre || "A")[0]}
           </div>
           <div>
             <p className="font-semibold text-sm">{agente.nombre}</p>

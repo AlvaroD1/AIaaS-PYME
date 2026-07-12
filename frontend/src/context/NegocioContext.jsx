@@ -15,6 +15,7 @@ const initialState = {
   },
   agente: {
     nombre: "Asistente",
+    avatar: "🤖",
     tono: "informal",
     saludo: "¡Hola! ¿En qué te ayudo hoy?",
     faq: [],

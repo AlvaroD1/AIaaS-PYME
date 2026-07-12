@@ -40,7 +40,7 @@ export function Inventario() {
     <div className="max-w-5xl mx-auto">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4 sm:gap-0">
         <div>
-          <h1 className="font-heading text-3xl font-bold text-primary-dark">Inventario</h1>
+          <h1 className="font-heading text-2xl sm:text-3xl font-bold text-primary-dark">Inventario</h1>
           <p className="text-gray-500 text-sm mt-1">
             {state.inventario.length} productos registrados
           </p>
@@ -51,7 +51,7 @@ export function Inventario() {
       </div>
 
       {state.inventario.length === 0 ? (
-        <div className="bg-white rounded-2xl p-16 text-center shadow-md">
+        <div className="bg-white rounded-sm p-16 text-center border border-border">
           <Package size={48} className="text-gray-300 mx-auto mb-4" />
           <h3 className="font-heading font-semibold text-gray-500 mb-2">Sin productos aún</h3>
           <p className="text-gray-400 text-sm mb-6">
@@ -62,8 +62,8 @@ export function Inventario() {
           </Button>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl shadow-md overflow-hidden overflow-x-auto">
-          <table className="w-full text-left min-w-[600px]">
+        <div className="bg-white rounded-2xl shadow-md overflow-x-auto">
+          <table className="w-full text-left">
             <thead className="bg-muted border-b border-border">
               <tr>
                 {["Producto", "Precio", esServicioSalud ? null : "Stock", "Acciones"].filter(Boolean).map(h => (
